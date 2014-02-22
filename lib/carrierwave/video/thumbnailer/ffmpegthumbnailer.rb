@@ -41,8 +41,12 @@ module CarrierWave
 
         def run options
           logger = options.logger
-          cmd = %Q{#{CarrierWave::Video::Thumbnailer::FFMpegThumbnailer.binary} -i #{input_path} -o #{output_path} #{options.to_cli}}.rstrip
-
+          if RbConfig::CONFIG['host_os'] =~ /Windows|mswin|mingw32/
+            #ffmpeg -i video.mp4 -vf "thumbnail,scale=640:360" -frames:v 1 thumb.png
+           cmd = %Q{ffmpeg -i #{input_path} -vf "thumbnail,scale=640:360" -frames:v 1 #{output_path}
+          else
+            cmd = %Q{#{CarrierWave::Video::Thumbnailer::FFMpegThumbnailer.binary} -i #{input_path} -o #{output_path} #{options.to_cli}}.rstrip
+          end
             logger.info("Running....#{cmd}") if logger
             outputs = []
             exit_code = nil
